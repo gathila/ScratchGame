@@ -2,19 +2,25 @@ package com.cali.config;
 
 import java.util.function.Function;
 
-public class SymbolConfig {
+public class Symbol {
 
     private final String symbol;
     private final RewardConfig rewardConfig;
+    private final SymbolType symbolType;
 
 
-    public SymbolConfig(String symbol, String action, double factor) {
+    public Symbol(String symbol, String type, RewardConfig rewardConfig) {
         this.symbol = symbol;
-        this.rewardConfig = new RewardConfig(action, factor);
+        this.rewardConfig = rewardConfig;
+        this.symbolType = SymbolType.toSymbolType(type);
     }
 
     public String getSymbol() {
         return symbol;
+    }
+
+    public SymbolType getSymbolType() {
+        return symbolType;
     }
 
     public Function<Double, Double> getRewardCalculator() {

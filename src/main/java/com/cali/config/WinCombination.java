@@ -7,15 +7,9 @@ public class WinCombination {
     protected String combinationName;
     protected double factor;
 
-    public WinCombination(String combinationName, double factor) {
-        this.combinationName = combinationName;
+    public WinCombination(double factor) {
         this.factor = factor;
     }
-
-    public String getCombinationName() {
-        return combinationName;
-    }
-
     public double getFactor() {
         return factor;
     }

@@ -1,24 +1,23 @@
 package com.cali;
 
-import com.cali.config.Configurations;
+import com.cali.config.GameConfig;
 import com.cali.config.LinearCombination;
 import com.cali.config.RepeatingCombination;
-import com.cali.config.SymbolConfig;
+import com.cali.config.Symbol;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class Game {
 
-    private Configurations configurations;
+    private GameConfig gameConfig;
     private RepeatingContentExtractor repeatingContentExtractor;
     private LinearContentExtractor linearContentExtractor;
 
-    public Game(Configurations configurations,
+    public Game(GameConfig gameConfig,
                 RepeatingContentExtractor repeatingContentExtractor,
                 LinearContentExtractor linearContentExtractor) {
-        this.configurations = configurations;
+        this.gameConfig = gameConfig;
         this.repeatingContentExtractor = repeatingContentExtractor;
         this.linearContentExtractor = linearContentExtractor;
     }
@@ -39,29 +38,29 @@ public class Game {
 
 
             for (Map.Entry<String, Integer> entry: symbolWithCount.entrySet()) {
-                SymbolConfig symbolConfig = configurations.symbolConfigs.get(entry.getKey());
-                RepeatingCombination repeatingCombination = configurations.repeatingCombinations.get(entry.getValue());
+                Symbol symbol = gameConfig.symbols.get(entry.getKey());
+                RepeatingCombination repeatingCombination = gameConfig.repeatingCombinations.get(entry.getValue());
 
                 RewardCalculator.Builder builder = new RewardCalculator
-                        .Builder(symbolConfig, repeatingCombination);
+                        .Builder(symbol, repeatingCombination);
 
                 if (verticalExtract.contains(entry.getKey())) {
-                    LinearCombination vertical = configurations.lenierCombinationMap.get("Vertical");
+                    LinearCombination vertical = gameConfig.lenierCombinationMap.get("Vertical");
                     builder.verticalCombination(vertical);
                 }
 
                 if (horizontalExtract.contains(entry.getKey())) {
-                    LinearCombination horizontal = configurations.lenierCombinationMap.get("Horizontal");
+                    LinearCombination horizontal = gameConfig.lenierCombinationMap.get("Horizontal");
                     builder.horizontalCombination(horizontal);
                 }
 
                 if (entry.getKey().equals(lrDiagonal)) {
-                    LinearCombination lr = configurations.lenierCombinationMap.get("LRDiagonal");
+                    LinearCombination lr = gameConfig.lenierCombinationMap.get("LRDiagonal");
                     builder.horizontalCombination(lr);
                 }
 
                 if (entry.getKey().equals(rlDiagonal)) {
-                    LinearCombination rl = configurations.lenierCombinationMap.get("RLDiagonal");
+                    LinearCombination rl = gameConfig.lenierCombinationMap.get("RLDiagonal");
                     builder.horizontalCombination(rl);
                 }
 

@@ -6,7 +6,7 @@ public class RepeatingCombination extends WinCombination {
 
 
     public RepeatingCombination(String combinationName, double factor, int times) {
-        super(combinationName, factor);
+        super(factor);
         this.times = times;
     }
 
