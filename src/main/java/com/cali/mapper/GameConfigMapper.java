@@ -38,6 +38,8 @@ public class GameConfigMapper {
                 .map(WinCombinationMapper::toLinearCombination)
                 .collect(Collectors.toMap(LinearCombination::getCombination, Function.identity()));
 
+        domain.probabilities = ProbabilityMapper.toProbabilities(dto.probabilities);
+
         return domain;
     }
 }

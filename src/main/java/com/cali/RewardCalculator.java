@@ -23,7 +23,7 @@ public class RewardCalculator {
     }
 
     public double calculate(double betAmount) {
-        Function<Double, Double> repeatingSymbol = this.symbol.getRewardCalculator()
+        Function<Double, Double> repeatingSymbol = this.symbol.getRewardFunction()
                 .andThen(this.repeatingCombination.getRewardFunction());
         Optional<Function<Double, Double>> otherMatchings = linearCombination.stream().map(WinCombination::getRewardFunction)
                 .reduce(Function::andThen);

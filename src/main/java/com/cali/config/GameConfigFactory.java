@@ -6,9 +6,9 @@ import com.cali.mapper.GameConfigMapper;
 
 import java.io.IOException;
 
-public class ConfigFactory {
+public class GameConfigFactory {
 
-    public GameConfig getInstance() {
+    public static GameConfig getInstance() {
         try {
             GameConfigDTO gameConfigDTO = JsonLoader.loadConfig("config.json");
             return new GameConfigMapper().toGameConfig(gameConfigDTO);

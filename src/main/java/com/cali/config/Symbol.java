@@ -23,7 +23,7 @@ public class Symbol {
         return symbolType;
     }
 
-    public Function<Double, Double> getRewardCalculator() {
+    public Function<Double, Double> getRewardFunction() {
         return rewardConfig.rewardCalculator();
     }
 }

@@ -1,58 +1,43 @@
 package com.cali;
 
-import java.util.LinkedHashMap;
+import com.cali.config.Probabilities;
+import com.cali.config.StandardSymbolProbability;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.Map;
 import java.util.Random;
 
 public class Matrix {
 
     private final Random randomGen = new Random();
-    double bonusChance = 0.1; //Change this to dynamic
+    private final double bonusChance = 0.1; //Change this to dynamic
+    private final Probabilities probabilities;
 
-    public String[][] randomMetrixOf(int size) {
-        
-        WeightedRandomLetter wl = new WeightedRandomLetter(letters(), symbols());
-        String [][] metrix = new String[size][size];
-        
-        for (int i=0; i<size; i++) {
-            for (int j=0; j<size; j++) {
+    public Matrix(Probabilities probabilities) {
+        this.probabilities = probabilities;
+    }
 
+    public String[][] randomMatrixOf(int rows, int columns) {
+        
+        WeightedRandomSymbolGenerator wl = new WeightedRandomSymbolGenerator();
+        String [][] matrix = new String[rows][columns];
+        
+        for (int i=0; i<rows; i++) {
+            for (int j=0; j<columns; j++) {
+
+                Map<String, Integer> symbolProbabilities;
                 if (randomGen.nextDouble() < bonusChance) {
-                    metrix[i][j] = wl.getWeightRandomSymbol();
+                    symbolProbabilities = probabilities.getBonusSymbolsProbabilities();
                 } else {
-                    metrix[i][j] = wl.getWeightedRandomLetter();
+                    StandardSymbolProbability standardSymbolProbability = probabilities.getStandardSymbolsProbabilities().get(Pair.of(i, j));
+                    symbolProbabilities = standardSymbolProbability.getSymbols();
                 }
+
+                matrix[i][j] = wl.getWeightedRandomSymbol(symbolProbabilities);
             }
         }
         
-        return metrix;
-    }
-
-
-
-    private Map<String, Integer> letters() {
-        Map<String, Integer> letterWeights = new LinkedHashMap<>();
-
-        letterWeights.put("A", 1);
-        letterWeights.put("B", 2);
-        letterWeights.put("C", 3);
-        letterWeights.put("D", 4);
-        letterWeights.put("E", 5);
-        letterWeights.put("F", 6);
-
-        return letterWeights;
-    }
-
-    private Map<String, Integer> symbols() {
-        Map<String, Integer> symbolWeights = new LinkedHashMap<>();
-
-        symbolWeights.put("10x", 1);
-        symbolWeights.put("5x", 2);
-        symbolWeights.put("+1000", 3);
-        symbolWeights.put("+500", 4);
-        symbolWeights.put("MISS", 5);
-
-        return symbolWeights;
+        return matrix;
     }
     
 }
