@@ -1,0 +1,14 @@
+
+x
+java:S1104
+"[Make standardSymbols a static final constant or non-public and provide accessors if needed.(ºü…š8€«îö2
+u
+java:S1104"XMake bonusSymbols a static final constant or non-public and provide accessors if needed.(ìÎ¼8€«îö2
+v
+java:S1104"YMake symbolConfigs a static final constant or non-public and provide accessors if needed.(­®äî8€«îö2
+~
+java:S1104"aMake repeatingCombinations a static final constant or non-public and provide accessors if needed.(¬¬ª²8€«îö2
+‚
+java:S1104"`Make lenierCombinationMap a static final constant or non-public and provide accessors if needed.(êõ„÷ÿÿÿÿÿ8€«îö2
+£
+java:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(»ù˜âüÿÿÿÿ8«îö2
