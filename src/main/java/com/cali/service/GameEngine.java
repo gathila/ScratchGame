@@ -4,8 +4,8 @@ import com.cali.config.GameConfig;
 import com.cali.config.LinearCombination;
 import com.cali.config.RepeatingCombination;
 import com.cali.config.Symbol;
-import com.cali.domain.*;
 import com.cali.domain.service.*;
+import com.cali.dto.GameResults;
 
 import java.util.*;
 
@@ -21,12 +21,12 @@ public class GameEngine {
         this.matrixProvider = matrixProvider;
     }
 
-    public Results play(double betAmount) {
+    public GameResults play(double betAmount) {
         String[][] scratchedCard = matrixProvider.generateMatrix(gameConfig.rows, gameConfig.columns);
 
         Map<String, Integer> symbolWithCount = extractValidRepeatingSymbols(scratchedCard);
-        Results results = new Results();
-        results.setMatrix(scratchedCard);
+        GameResults gameResults = new GameResults();
+        gameResults.setMatrix(scratchedCard);
 
         if (!symbolWithCount.isEmpty()) {
             LinearContentExtractor linearContentExtractor = new LinearContentExtractor();
@@ -35,19 +35,96 @@ public class GameEngine {
             String lrDiagonal = linearContentExtractor.extractLeftToRightDiagonal(scratchedCard);
             String rlDiagonal = linearContentExtractor.extractRightToLeftDiagonal(scratchedCard);
 
-            calculateStandardSymbolRewards(betAmount, symbolWithCount, verticalExtract, horizontalExtract, lrDiagonal, rlDiagonal, results);
+            Map<String, List<LinearCombination>> linearCombinationsMap = 
+                    collectCombinations(symbolWithCount.keySet(), verticalExtract, horizontalExtract, lrDiagonal, rlDiagonal);
 
-            applyBonusEffects(scratchedCard, results);
-            System.out.println(results);
+            double reward = calculateRewards(betAmount, symbolWithCount, linearCombinationsMap);
+            Map<String, List<String>> winningCombinations = collectCombinationInfo(symbolWithCount, linearCombinationsMap);
 
+            gameResults.setReward(reward);
+            gameResults.setAppliedWinningCombinations(winningCombinations);
+            applyBonusEffects(scratchedCard, gameResults);
         }
 
-        return results;
+        return gameResults;
 
     }
 
+    private double calculateRewards(
+            double betAmount,
+            Map<String, Integer> symbolWithCount,
+            Map<String, List<LinearCombination>> linearCombinationsMap) {
 
-    private void calculateStandardSymbolRewards(final double betAmount, Map<String, Integer> symbolWithCount, Set<String> verticalExtract, Set<String> horizontalExtract, String lrDiagonal, String rlDiagonal, Results results) {
+        double totalPoints = 0;
+        for (Map.Entry<String, Integer> entry : symbolWithCount.entrySet()) {
+            Symbol symbol = gameConfig.symbols.get(entry.getKey());
+            RepeatingCombination repeatingCombination = gameConfig.repeatingCombinations.get(entry.getValue());
+            List<LinearCombination> linearCombinations = linearCombinationsMap.getOrDefault(entry.getKey(), List.of());
+
+            totalPoints += RewardCalculator.calculate(betAmount, symbol, repeatingCombination, linearCombinations);
+        }
+        return totalPoints;
+    }
+
+    private Map<String, List<String>> collectCombinationInfo(
+            Map<String, Integer> symbolWithCount,
+            Map<String, List<LinearCombination>> linearCombinationsMap) {
+
+        Map<String, List<String>> result = new HashMap<>();
+
+        for (Map.Entry<String, Integer> entry : symbolWithCount.entrySet()) {
+            List<String> comboNames = new ArrayList<>();
+            RepeatingCombination repeating = gameConfig.repeatingCombinations.get(entry.getValue());
+            comboNames.add(repeating.getCombinationName());
+
+            List<LinearCombination> linearCombinations = linearCombinationsMap.getOrDefault(entry.getKey(), List.of());
+            for (LinearCombination linear : linearCombinations) {
+                comboNames.add(linear.getCombinationName());
+            }
+
+            result.put(entry.getKey(), comboNames);
+        }
+
+        return result;
+    }
+
+
+    private Map<String, List<LinearCombination>> collectCombinations(
+            Set<String> matchedSymbols,
+            Set<String> vertical,
+            Set<String> horizontal,
+            String lrDiagonal,
+            String rlDiagonal) {
+
+        Map<String, List<LinearCombination>> result = new HashMap<>();
+
+        for (String symbol : matchedSymbols) {
+            List<LinearCombination> list = new ArrayList<>();
+
+            if (vertical.contains(symbol)) {
+                list.add(gameConfig.linearCombinationMap.get(VERTICALLY_LINEAR_SYMBOLS));
+            }
+            if (horizontal.contains(symbol)) {
+                list.add(gameConfig.linearCombinationMap.get(HORIZONTALLY_LINEAR_SYMBOLS));
+            }
+            if (symbol.equals(lrDiagonal)) {
+                list.add(gameConfig.linearCombinationMap.get(LTR_DIAGONALLY_LINEAR_SYMBOLS));
+            }
+            if (symbol.equals(rlDiagonal)) {
+                list.add(gameConfig.linearCombinationMap.get(RTL_DIAGONALLY_LINEAR_SYMBOLS));
+            }
+
+            if (!list.isEmpty()) {
+                result.put(symbol, list);
+            }
+        }
+
+        return result;
+    }
+
+
+
+    private void calculateStandardSymbolRewards(final double betAmount, Map<String, Integer> symbolWithCount, Set<String> verticalExtract, Set<String> horizontalExtract, String lrDiagonal, String rlDiagonal, GameResults gameResults) {
         double totalPoints = 0;
         Map<String, List<String>> appliedWinningCombinations = new HashMap<>();
         for (Map.Entry<String, Integer> entry: symbolWithCount.entrySet()) {
@@ -85,8 +162,8 @@ public class GameEngine {
             appliedWinningCombinations.put(entry.getKey(), winningCombinations);
         }
 
-        results.setReward(totalPoints);
-        results.setAppliedWinningCombinations(appliedWinningCombinations);
+        gameResults.setReward(totalPoints);
+        gameResults.setAppliedWinningCombinations(appliedWinningCombinations);
     }
 
     private Map<String, Integer> extractValidRepeatingSymbols(String[][] scratchedCard) {
@@ -95,13 +172,13 @@ public class GameEngine {
         return repeatingContentExtractor.extractRepeatingContent(scratchedCard);
     }
 
-    private void applyBonusEffects(String[][] scratchedCard, Results results) {
+    private void applyBonusEffects(String[][] scratchedCard, GameResults gameResults) {
         List<Symbol> bonusSymbols = extractBonusSymbols(scratchedCard);
-        double rewards = BonusRewardApplier.apply(bonusSymbols, results.getReward());
-        results.setReward(rewards);
+        double rewards = BonusRewardApplier.apply(bonusSymbols, gameResults.getReward());
+        gameResults.setReward(rewards);
 
         if (!bonusSymbols.isEmpty()) {
-            results.setAppliedBonusSymbol(bonusSymbols.get(0).getSymbol());
+            gameResults.setAppliedBonusSymbol(bonusSymbols.get(0).getSymbol());
         }
     }
 

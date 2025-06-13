@@ -1,17 +1,17 @@
-package com.cali.domain;
+package com.cali.dto;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class Results {
+public class GameResults {
 
     private String [][] matrix;
     private double reward = 0.0;
     private Map<String, List<String>> appliedWinningCombinations;
     private String appliedBonusSymbol;
 
-    public Results() {
+    public GameResults() {
     }
 
     public String[][] getMatrix() {
