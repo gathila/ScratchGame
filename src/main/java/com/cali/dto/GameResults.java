@@ -1,5 +1,7 @@
 package com.cali.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +10,11 @@ public class GameResults {
 
     private String [][] matrix;
     private double reward = 0.0;
+
+    @JsonProperty("applied_winning_combinations")
     private Map<String, List<String>> appliedWinningCombinations;
+
+    @JsonProperty("applied_bonus_symbol")
     private String appliedBonusSymbol;
 
     public GameResults() {

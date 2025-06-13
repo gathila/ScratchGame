@@ -1,9 +1,9 @@
-package com.cali;
+package com.cali.service;
 
+import com.cali.TestUtils;
 import com.cali.config.GameConfig;
-import com.cali.service.GameEngine;
 import com.cali.domain.service.MatrixProvider;
-import com.cali.domain.Results;
+import com.cali.dto.GameResults;
 import com.cali.dto.GameConfigDTO;
 import com.cali.mapper.GameConfigMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GameTest {
+public class GameEngineTest {
 
 
     private GameConfig config;
@@ -38,8 +38,8 @@ public class GameTest {
 
         String[][] scratchedCard = noPattern();
         when(matrixProvider.generateMatrix(3, 3)).thenReturn(scratchedCard);
-        Results results = gameEngine.play(100);
-        assertEquals(0.0, results.getReward());
+        GameResults gameResults = gameEngine.play(100);
+        assertEquals(0.0, gameResults.getReward());
     }
 
     @Test
@@ -48,10 +48,10 @@ public class GameTest {
         String[][] scratchedCard = repeat3Times();
         when(matrixProvider.generateMatrix(3, 3)).thenReturn(scratchedCard);
         double betAmount = 100;
-        Results results = gameEngine.play(betAmount);
+        GameResults gameResults = gameEngine.play(betAmount);
 
-        double multiplier = config.symbols.get("A").getRewardMultiplier();
-        assertEquals(betAmount*multiplier, results.getReward());
+        double multiplier = config.getSymbols().get("A").getRewardMultiplier();
+        assertEquals(betAmount*multiplier, gameResults.getReward());
     }
 
     @Test
@@ -59,9 +59,9 @@ public class GameTest {
         String[][] scratchedCard = customPattern1();
         when(matrixProvider.generateMatrix(3, 3)).thenReturn(scratchedCard);
         double betAmount = 100;
-        Results results = gameEngine.play(betAmount);
+        GameResults gameResults = gameEngine.play(betAmount);
 
-        assertEquals(3600, results.getReward());
+        assertEquals(3600, gameResults.getReward());
     }
 
     @Test
@@ -69,9 +69,20 @@ public class GameTest {
         String[][] scratchedCard = customPattern2();
         when(matrixProvider.generateMatrix(3, 3)).thenReturn(scratchedCard);
         double betAmount = 100;
-        Results results = gameEngine.play(betAmount);
+        GameResults gameResults = gameEngine.play(betAmount);
 
-        assertEquals(3000, results.getReward());
+        assertEquals(3000, gameResults.getReward());
+    }
+
+    @Test
+    void testPatternWithMissBonus() {
+
+        String[][] scratchedCard = repeatsWithMissBonus();
+        when(matrixProvider.generateMatrix(3, 3)).thenReturn(scratchedCard);
+        double betAmount = 100;
+        GameResults gameResults = gameEngine.play(betAmount);
+
+        assertEquals(460, gameResults.getReward());
     }
 
 
@@ -130,6 +141,21 @@ public class GameTest {
         arr[1][2] = "C";
         arr[2][0] = "D";
         arr[2][1] = "D";
+        arr[2][2] = "E";
+
+        return arr;
+    }
+
+    private String[][] repeatsWithMissBonus() {
+        String [][] arr = new String[3][3];
+        arr[0][0] = "E";
+        arr[0][1] = "F";
+        arr[0][2] = "B";
+        arr[1][0] = "F";
+        arr[1][1] = "MISS";
+        arr[1][2] = "F";
+        arr[2][0] = "E";
+        arr[2][1] = "E";
         arr[2][2] = "E";
 
         return arr;

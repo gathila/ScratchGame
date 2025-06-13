@@ -34,9 +34,8 @@ public class Symbol {
 
          return switch (impact) {
             case MULTIPLY_REWARD -> currentReward * rewardMultiplier;
-             case EXTRA_BONUS       -> currentReward + extra;
-            case MISS            -> 0;
-            default              -> currentReward;
+             case EXTRA_BONUS -> currentReward + extra;
+            case MISS -> currentReward;
         };
     }
 }

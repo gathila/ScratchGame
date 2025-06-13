@@ -11,34 +11,34 @@ public class GameConfigMapper {
 
     public static GameConfig toGameConfig(GameConfigDTO dto) {
         GameConfig domain = GameConfig.getInstance();
-        domain.rows = dto.rows;
-        domain.columns = dto.columns;
+        domain.setRows(dto.rows);
+        domain.setColumns(dto.columns);
 
-        domain.symbols = dto.symbols.entrySet().stream()
+        domain.setSymbols(dto.symbols.entrySet().stream()
                 .map(e -> SymbolMapper.toSymbol(e.getKey(), e.getValue()))
-                .collect(Collectors.toMap(Symbol::getSymbol, Function.identity()));
+                .collect(Collectors.toMap(Symbol::getSymbol, Function.identity())));
 
-        domain.standardSymbols = domain.symbols.entrySet().stream()
+        domain.setStandardSymbols(domain.getSymbols().entrySet().stream()
                 .filter(e -> e.getValue().getSymbolType() == SymbolType.STANDARD)
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()));
 
-        domain.bonusSymbols = domain.symbols.entrySet().stream()
+        domain.setBonusSymbols(domain.getSymbols().entrySet().stream()
                 .filter(e -> e.getValue().getSymbolType() == SymbolType.BONUS)
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()));
 
-        domain.repeatingCombinations = dto.win_combinations.entrySet().stream()
+        domain.setRepeatingCombinations(dto.win_combinations.entrySet().stream()
                 .filter(entry -> "same_symbols".equals(entry.getValue().group))
                 .map(entry -> WinCombinationMapper.toRepeatingCombination(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toMap(RepeatingCombination::getTimes, Function.identity()));
+                .collect(Collectors.toMap(RepeatingCombination::getTimes, Function.identity())));
 
-        domain.linearCombinationMap = dto.win_combinations.entrySet().stream()
+        domain.setLinearCombinationMap(dto.win_combinations.entrySet().stream()
                 .filter(entry -> !"same_symbols".equals(entry.getValue().group))
                 .map(entry -> WinCombinationMapper.toLinearCombination(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toMap(LinearCombination::getCombination, Function.identity()));
+                .collect(Collectors.toMap(LinearCombination::getCombination, Function.identity())));
 
-        domain.probabilities = ProbabilityMapper.toProbabilities(dto.probabilities);
+        domain.setProbabilities(ProbabilityMapper.toProbabilities(dto.probabilities));
 
         return domain;
     }

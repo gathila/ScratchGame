@@ -18,7 +18,7 @@ public class App {
 
 
         GameConfig config = GameConfigFactory.getInstance();
-        MatrixProvider matrixProvider = new RandomMatrixProvider(config.probabilities);
+        MatrixProvider matrixProvider = new RandomMatrixProvider(config.getProbabilities());
         GameEngine gameEngine = new GameEngine(config, matrixProvider);
 
         GameResults play = gameEngine.play(100);

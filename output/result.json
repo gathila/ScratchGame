@@ -1,0 +1,9 @@
+{
+  "matrix" : [ [ "E", "F", "B" ], [ "F", "MISS", "F" ], [ "E", "E", "E" ] ],
+  "reward" : 460.0,
+  "applied_winning_combinations" : {
+    "E" : [ "same_symbol_4_times", "same_symbols_horizontally" ],
+    "F" : [ "same_symbol_3_times" ]
+  },
+  "applied_bonus_symbol" : "MISS"
+}

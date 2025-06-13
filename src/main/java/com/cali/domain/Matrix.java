@@ -11,7 +11,7 @@ import java.util.Random;
 public class Matrix {
 
     private final Random randomGen = new Random();
-    private final double bonusChance = 0.1; //Change this to dynamic
+    private final double bonusChance = 0.1; //Chance of getting a bonus symbol
     private final Probabilities probabilities;
 
     public Matrix(Probabilities probabilities) {
