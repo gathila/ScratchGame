@@ -20,7 +20,8 @@ public class RewardConfig {
             this.factor = extra;
         }
 
-        throw new InvalidParameterException("Either multiplier or extra is required");
+        else
+            throw new InvalidParameterException("Either multiplier or extra is required");
     }
 
     public Function<Double, Double> rewardCalculator() {

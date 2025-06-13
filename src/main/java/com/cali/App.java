@@ -14,5 +14,7 @@ public class App {
 
         GameConfig instance = GameConfigFactory.getInstance();
         Game game = new Game(instance);
+
+        game.play(100);
     }
 }

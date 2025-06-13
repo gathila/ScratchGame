@@ -33,7 +33,7 @@ public class GameConfigMapper {
                 .map(WinCombinationMapper::toRepeatingCombination)
                 .collect(Collectors.toMap(RepeatingCombination::getTimes, Function.identity()));
 
-        domain.lenierCombinationMap = dto.win_combinations.values().stream()
+        domain.linearCombinationMap = dto.win_combinations.values().stream()
                 .filter(winCombinationDTO -> !"same_symbols".equals(winCombinationDTO.group))
                 .map(WinCombinationMapper::toLinearCombination)
                 .collect(Collectors.toMap(LinearCombination::getCombination, Function.identity()));

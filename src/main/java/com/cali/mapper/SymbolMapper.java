@@ -9,6 +9,9 @@ public class SymbolMapper {
 
     public static Symbol toSymbol(String symbol, SymbolDefinitionDTO dto) {
 
+        if ("MISS".equals(symbol)) {
+            dto.reward_multiplier = 1.0;
+        }
         return new Symbol(symbol, dto.type, new RewardConfig(dto.reward_multiplier, dto.extra));
     }
 }
