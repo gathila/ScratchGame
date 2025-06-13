@@ -1,11 +1,10 @@
 package com.cali.infra;
 
 import com.cali.dto.GameConfigDTO;
+import com.cali.dto.GameInputBet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class JsonLoader {
 
@@ -18,6 +17,15 @@ public class JsonLoader {
             }
 
             return mapper.readValue(inputStream, GameConfigDTO.class);
+        }
+    }
+
+    public static GameInputBet loadInput(String jsonPath) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(new File(jsonPath), GameInputBet.class);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to read file", e);
         }
     }
 }
