@@ -8,10 +8,11 @@ import java.io.IOException;
 
 public class GameConfigFactory {
 
+    private GameConfigFactory() {}
     public static GameConfig getInstance() {
         try {
             GameConfigDTO gameConfigDTO = JsonLoader.loadConfig("config.json");
-            return new GameConfigMapper().toGameConfig(gameConfigDTO);
+            return GameConfigMapper.toGameConfig(gameConfigDTO);
 
         } catch (IOException e) {
             throw new RuntimeException(e);

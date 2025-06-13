@@ -18,7 +18,7 @@ public class GameConfig {
 
     //Grouped by number of repeats
     public Map<Integer, RepeatingCombination> repeatingCombinations;
-    public Map<LinearCombination.Combination, LinearCombination> linearCombinationMap;
+    public Map<LinearCombination.LinearCombinationType, LinearCombination> linearCombinationMap;
     public Probabilities probabilities;
 
     public void populateConfiguration() {

@@ -1,20 +1,21 @@
 package com.cali.config;
 
-import java.util.function.Function;
-
 public class WinCombination {
 
     protected String combinationName;
-    protected double factor;
+    protected double rewardMultiplier;
 
-    public WinCombination(double factor) {
-        this.factor = factor;
-    }
-    public double getFactor() {
-        return factor;
+    public WinCombination(String combinationName, double rewardMultiplier) {
+        this.combinationName = combinationName;
+        this.rewardMultiplier = rewardMultiplier;
     }
 
-    public Function<Double, Double> getRewardFunction() {
-        return v -> Operation.MULTIPLY.apply(v, factor);
+
+    public double getRewardMultiplier() {
+        return rewardMultiplier;
+    }
+
+    public String getCombinationName() {
+        return combinationName;
     }
 }

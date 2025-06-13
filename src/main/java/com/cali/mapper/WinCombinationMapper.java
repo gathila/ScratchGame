@@ -6,11 +6,11 @@ import com.cali.dto.WinCombinationDTO;
 
 public class WinCombinationMapper {
 
-    public static RepeatingCombination toRepeatingCombination(WinCombinationDTO dto) {
-        return new RepeatingCombination(dto.group, dto.reward_multiplier, dto.count);
+    public static RepeatingCombination toRepeatingCombination(String combinationName, WinCombinationDTO dto) {
+        return new RepeatingCombination(combinationName, dto.reward_multiplier, dto.count);
     }
 
-    public static LinearCombination toLinearCombination(WinCombinationDTO dto) {
-        return new LinearCombination(dto.group, dto.reward_multiplier);
+    public static LinearCombination toLinearCombination(String combinationName, WinCombinationDTO dto) {
+        return new LinearCombination(combinationName, dto.group, dto.reward_multiplier);
     }
 }

@@ -1,27 +1,32 @@
-package com.cali;
+package com.cali.service;
 
 import com.cali.config.GameConfig;
 import com.cali.config.LinearCombination;
 import com.cali.config.RepeatingCombination;
 import com.cali.config.Symbol;
+import com.cali.domain.*;
+import com.cali.domain.service.*;
 
 import java.util.*;
 
-import static com.cali.config.LinearCombination.Combination.*;
+import static com.cali.config.LinearCombination.LinearCombinationType.*;
 
-public class Game {
+public class GameEngine {
 
     private final GameConfig gameConfig;
+    private final MatrixProvider matrixProvider;
 
-    public Game(GameConfig gameConfig) {
+    public GameEngine(GameConfig gameConfig, MatrixProvider matrixProvider) {
         this.gameConfig = gameConfig;
+        this.matrixProvider = matrixProvider;
     }
 
-    public void play(int betAmount) {
-        String[][] scratchedCard = generateScratchMatrix();
+    public Results play(double betAmount) {
+        String[][] scratchedCard = matrixProvider.generateMatrix(gameConfig.rows, gameConfig.columns);
 
         Map<String, Integer> symbolWithCount = extractValidRepeatingSymbols(scratchedCard);
-        double totalPoints = 0;
+        Results results = new Results();
+        results.setMatrix(scratchedCard);
 
         if (!symbolWithCount.isEmpty()) {
             LinearContentExtractor linearContentExtractor = new LinearContentExtractor();
@@ -30,54 +35,58 @@ public class Game {
             String lrDiagonal = linearContentExtractor.extractLeftToRightDiagonal(scratchedCard);
             String rlDiagonal = linearContentExtractor.extractRightToLeftDiagonal(scratchedCard);
 
-            totalPoints = calculateStandardSymbolRewards(betAmount, symbolWithCount, verticalExtract, horizontalExtract, lrDiagonal, rlDiagonal);
+            calculateStandardSymbolRewards(betAmount, symbolWithCount, verticalExtract, horizontalExtract, lrDiagonal, rlDiagonal, results);
 
-            totalPoints = applyBonusEffects(scratchedCard, totalPoints);
+            applyBonusEffects(scratchedCard, results);
+            System.out.println(results);
 
         }
 
-        System.out.println(totalPoints);
+        return results;
+
     }
 
-    private double calculateStandardSymbolRewards(int betAmount, Map<String, Integer> symbolWithCount, Set<String> verticalExtract, Set<String> horizontalExtract, String lrDiagonal, String rlDiagonal) {
+
+    private void calculateStandardSymbolRewards(final double betAmount, Map<String, Integer> symbolWithCount, Set<String> verticalExtract, Set<String> horizontalExtract, String lrDiagonal, String rlDiagonal, Results results) {
         double totalPoints = 0;
+        Map<String, List<String>> appliedWinningCombinations = new HashMap<>();
         for (Map.Entry<String, Integer> entry: symbolWithCount.entrySet()) {
+            List<String> winningCombinations = new ArrayList<>();
             Symbol symbol = gameConfig.symbols.get(entry.getKey());
             RepeatingCombination repeatingCombination = gameConfig.repeatingCombinations.get(entry.getValue());
+            winningCombinations.add(repeatingCombination.getCombinationName());
 
-            RewardCalculator.Builder builder = new RewardCalculator
-                    .Builder(symbol)
-                    .withRepeatingCombination(repeatingCombination);
-
+            List<LinearCombination> linearCombinations = new ArrayList<>();
             if (verticalExtract.contains(entry.getKey())) {
                 LinearCombination vertical = gameConfig.linearCombinationMap.get(VERTICALLY_LINEAR_SYMBOLS);
-                builder.verticalCombination(vertical);
+                linearCombinations.add(vertical);
+                winningCombinations.add(vertical.getCombinationName());
             }
 
             if (horizontalExtract.contains(entry.getKey())) {
                 LinearCombination horizontal = gameConfig.linearCombinationMap.get(HORIZONTALLY_LINEAR_SYMBOLS);
-                builder.horizontalCombination(horizontal);
+                linearCombinations.add(horizontal);
+                winningCombinations.add(horizontal.getCombinationName());
             }
 
             if (entry.getKey().equals(lrDiagonal)) {
                 LinearCombination lr = gameConfig.linearCombinationMap.get(LTR_DIAGONALLY_LINEAR_SYMBOLS);
-                builder.leftToRightDiagonal(lr);
+                linearCombinations.add(lr);
+                winningCombinations.add(lr.getCombinationName());
             }
 
             if (entry.getKey().equals(rlDiagonal)) {
                 LinearCombination rl = gameConfig.linearCombinationMap.get(RTL_DIAGONALLY_LINEAR_SYMBOLS);
-                builder.rightToLeftDiagonal(rl);
+                linearCombinations.add(rl);
+                winningCombinations.add(rl.getCombinationName());
             }
 
-            RewardCalculator rewardCalculator = builder.build();
-            totalPoints += rewardCalculator.calculate(betAmount);
+            totalPoints += RewardCalculator.calculate(betAmount, symbol, repeatingCombination, linearCombinations);
+            appliedWinningCombinations.put(entry.getKey(), winningCombinations);
         }
-        return totalPoints;
-    }
 
-    private String[][] generateScratchMatrix() {
-        Matrix matrix = new Matrix(gameConfig.probabilities);
-        return matrix.randomMatrixOf(gameConfig.rows, gameConfig.columns);
+        results.setReward(totalPoints);
+        results.setAppliedWinningCombinations(appliedWinningCombinations);
     }
 
     private Map<String, Integer> extractValidRepeatingSymbols(String[][] scratchedCard) {
@@ -86,16 +95,14 @@ public class Game {
         return repeatingContentExtractor.extractRepeatingContent(scratchedCard);
     }
 
-
-    private double applyBonusEffects(String[][] scratchedCard, double currentPoints) {
+    private void applyBonusEffects(String[][] scratchedCard, Results results) {
         List<Symbol> bonusSymbols = extractBonusSymbols(scratchedCard);
+        double rewards = BonusRewardApplier.apply(bonusSymbols, results.getReward());
+        results.setReward(rewards);
 
-        for (Symbol bonus : bonusSymbols) {
-            RewardCalculator bonusCalc = new RewardCalculator.Builder(bonus).build();
-            currentPoints = bonusCalc.calculate(currentPoints);
+        if (!bonusSymbols.isEmpty()) {
+            results.setAppliedBonusSymbol(bonusSymbols.get(0).getSymbol());
         }
-
-        return currentPoints;
     }
 
     private List<Symbol> extractBonusSymbols(String[][] scratchedCard) {

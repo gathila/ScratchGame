@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class GameConfigMapper {
 
-    public GameConfig toGameConfig(GameConfigDTO dto) {
+    public static GameConfig toGameConfig(GameConfigDTO dto) {
         GameConfig domain = GameConfig.getInstance();
         domain.rows = dto.rows;
         domain.columns = dto.columns;
@@ -28,14 +28,14 @@ public class GameConfigMapper {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
 
-        domain.repeatingCombinations = dto.win_combinations.values().stream()
-                .filter(winCombinationDTO -> "same_symbols".equals(winCombinationDTO.group))
-                .map(WinCombinationMapper::toRepeatingCombination)
+        domain.repeatingCombinations = dto.win_combinations.entrySet().stream()
+                .filter(entry -> "same_symbols".equals(entry.getValue().group))
+                .map(entry -> WinCombinationMapper.toRepeatingCombination(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toMap(RepeatingCombination::getTimes, Function.identity()));
 
-        domain.linearCombinationMap = dto.win_combinations.values().stream()
-                .filter(winCombinationDTO -> !"same_symbols".equals(winCombinationDTO.group))
-                .map(WinCombinationMapper::toLinearCombination)
+        domain.linearCombinationMap = dto.win_combinations.entrySet().stream()
+                .filter(entry -> !"same_symbols".equals(entry.getValue().group))
+                .map(entry -> WinCombinationMapper.toLinearCombination(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toMap(LinearCombination::getCombination, Function.identity()));
 
         domain.probabilities = ProbabilityMapper.toProbabilities(dto.probabilities);

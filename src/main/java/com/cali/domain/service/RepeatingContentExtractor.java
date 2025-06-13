@@ -1,4 +1,4 @@
-package com.cali;
+package com.cali.domain.service;
 
 import java.util.HashMap;
 import java.util.Map;

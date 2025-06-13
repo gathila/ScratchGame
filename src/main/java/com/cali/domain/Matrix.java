@@ -1,7 +1,8 @@
-package com.cali;
+package com.cali.domain;
 
 import com.cali.config.Probabilities;
 import com.cali.config.StandardSymbolProbability;
+import com.cali.domain.service.WeightedRandomSymbolGenerator;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
